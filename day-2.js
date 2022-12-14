@@ -5,38 +5,40 @@
 const pre = document.getElementsByTagName("pre");
 const matchesFromPage = pre[0].innerHTML;
 
-function getValuePoints(match) {
-    // only return the points for your moves
-    switch (match[2]) {
-        case "Z":
+function getValuePoints(letter) {
+    switch (letter) {
+        case "C":
             return 3;
-        case "Y":
+        case "B":
             return 2;
-        case "X":
+        case "A":
             return 1;
     }
 }
 
-function getWinnerIndex(match) {
-    // first convert ABCs to XYZs
-    match = match.replace("A", "X"); // rock
-    match = match.replace("B", "Y"); // paper
-    match = match.replace("C", "Z"); // scissors
+function getResultsPoints(match) {
+    switch (match[2]) {
+        case "Z":
+            return 6;
+        case "Y":
+            return 3;
+        case "X":
+            return 0;
+    }
+}
 
-    // draw returns null, otherwise return index of winner
-    if (match[0] === match[2]) {
-        return null;
-    } else if (match.indexOf("X") !== -1) {
-        if (match.indexOf("Z") !== -1) {
-            // rock vs. scissors, rock wins
-            return match.indexOf("X");
-        } else if (match.indexOf("Y") !== -1) {
-            // rock vs. paper, paper wins
-            return match.indexOf("Y");
-        }
-    } else if (match.indexOf("Y") !== -1) {
-        // scissors vs. paper, scissors wins
-        return match.indexOf("Z");
+function getShapesGuide(match) {
+    const theirMove = match[0];
+
+    if (theirMove === "A") {
+        // rock
+        return { winning: "B", losing: "C", draw: "A" };
+    } else if (theirMove === "B") {
+        // paper
+        return { winning: "C", losing: "A", draw: "B" };
+    } else if (theirMove === "C") {
+        // scissors
+        return { winning: "A", losing: "B", draw: "C" };
     }
 }
 
@@ -48,10 +50,18 @@ function calculateScore(matches) {
         if (match === "") {
             return;
         }
-        points += getValuePoints(match);
-        const winnerIndex = getWinnerIndex(match);
-        if (winnerIndex === null) points += 3;
-        if (winnerIndex === 2) points += 6;
+        // result points
+        points += getResultsPoints(match);
+
+        // value points based on the shape that you choose
+        const shape = getShapesGuide(match);
+        if (match[2] === "X") {
+            points += getValuePoints(shape.losing);
+        } else if (match[2] === "Y") {
+            points += getValuePoints(shape.draw);
+        } else if (match[2] === "Z") {
+            points += getValuePoints(shape.winning);
+        }
     });
     console.log(`your points: ${points}`);
     return points;
@@ -62,7 +72,7 @@ function calculateScore(matches) {
 
 console.group("Tests");
 console.log(
-    `scores test input correctly: ${calculateScore("A Y\nB X\nC Z") === 15}`
+    `scores test input correctly: ${calculateScore("A Y\nB X\nC Z") === 12}`
 );
 console.groupEnd();
 
