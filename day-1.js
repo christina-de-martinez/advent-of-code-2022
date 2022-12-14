@@ -34,7 +34,8 @@ const topThreeCalorieAmounts =
     sortedCalories[0] + sortedCalories[1] + sortedCalories[2];
 console.log(`answer to part 2: ${topThreeCalorieAmounts}`);
 
-// time complexity: O(n)
+// time complexity of part 1: O(n)
+// time complexity including part 2: O(n log n), because I added sorting
 // space complexity: 2n (therefore O(n)) since i'm doing most variable reassignment in place except for calorieValues (which I did because I don't want to overwrite one type - array - with a different type - number)
 
 console.group("TESTS");
