@@ -1,6 +1,7 @@
 const testInput = "2-4,6-8\n2-3,4-5\n5-7,7-9\n2-8,3-7\n6-6,4-6\n2-6,4-8\n";
 const testInput2 =
     "7-7,8-42\n2-95,2-94\n10-54,33-90\n23-24,24-40\n1-48,12-47\n9-27,9-26\n9-9,9-10\n9-10,12-15\n3-5,3-5\n";
+const testInput3 = "5-7,7-9\n2-8,3-7\n6-6,4-6\n2-6,4-8\n";
 
 const pre = document.getElementsByTagName("pre");
 const inner = pre[0].innerHTML;
@@ -23,7 +24,17 @@ function fullyContains(input) {
             let x2 = parseInt(formattedPair[0][1]);
             let y1 = parseInt(formattedPair[1][0]);
             let y2 = parseInt(formattedPair[1][1]);
-            if (x1 <= y1 && x2 >= y2) {
+
+            if (x1 > y1 && x1 < y2) {
+                // overlap on an edge
+                count++;
+            } else if (x1 === y1 || x1 === y2 || x2 === y1 || x2 === y2) {
+                // overlap on an edge
+                count++;
+            } else if ((x1 <= y1 && x2 >= y1) || (y1 <= x2 && y2 >= x2)) {
+                // overlap on an edge
+                count++;
+            } else if (x1 <= y1 && x2 >= y2) {
                 // the first group fully contains the second group
                 count++;
             } else if (y1 <= x1 && y2 >= x2) {
@@ -38,20 +49,25 @@ function fullyContains(input) {
 console.group("TESTS");
 console.log(
     "test input #1 return the correct answer",
-    fullyContains(testInput) === 2
+    fullyContains(testInput) === 5
 );
 console.log(
     "test input #2 return the correct answer",
-    fullyContains(testInput2) === 5
+    fullyContains(testInput2) === 7
+);
+console.log(
+    "test input #3 return the correct answer",
+    fullyContains(testInput3) === 4
 );
 console.groupEnd();
 
 console.group("ANSWERS");
-console.log(`part 1: ${fullyContains(inner)}`);
+console.log(`part 2: ${fullyContains(inner)}`);
 console.groupEnd();
 
 /*
-if each input is a pair, e.g. 2-4,6-8, my solution is O(n^2) because I iterate over each of these to split, then split again before comparing. This might be able to be done more elegantly by using reduce?
+Time: if each input is a pair, e.g. 2-4,6-8, my solution is O(n^2) because I iterate over each of these to split, then split again before comparing. This might be able to be done more elegantly by using reduce?
+Space: O(n) - when reformatting the numbers, I saved them in place. I did make a copy when I created `formattedPair`, so doing that differently could save space.
 
 What I learned:
 * I got tripped up for quite some time because I forgot to use parseInt.
