@@ -10,8 +10,7 @@ O(n) + O(n) = O(2n) = O(n)
 
 for the moves input:
 * I map over the moves and perform them each, which would be O(n)
-* There's a nested for loop, but that depends on the number of moves prescribed, not the input size itself. If you have an input size of 1 million, it will probably be bigger than an input size of 5, but not necessarily, because it doesn't depend directly on the input size. So for that reason this would be O(1).
-O(n) + O(1) = O(n)
+O(n)
 
 O(n) + O(n) = O(n), so I think I accomplished my goal!
 */
@@ -51,18 +50,22 @@ while (horizontalGroupings.length > 0) {
 }
 
 moves.map((move) => {
-    // this is necessary because moves can have more than one digit
-    move = move.replace("move ", "");
-    move = move.replace(" from ", ",");
-    move = move.replace(" to ", ",");
-    move = move.split(",");
-    const numOfMoves = parseInt(move[0]);
-    const origin = parseInt(move[1] - 1);
-    const destination = parseInt(move[2] - 1);
+    const trimmedMove = move.trim();
+    if (trimmedMove !== "") {
+        // this is necessary because moves can have more than one digit
+        move = move.replace("move ", "");
+        move = move.replace(" from ", ",");
+        move = move.replace(" to ", ",");
+        move = move.split(",");
+        const numOfMoves = parseInt(move[0]);
+        const origin = parseInt(move[1] - 1);
+        const destination = parseInt(move[2] - 1);
 
-    for (let i = 0; i < numOfMoves; i++) {
-        let boxToMove = warehouse[origin].pop();
-        warehouse[destination].push(boxToMove);
+        let boxesToMove = warehouse[origin].splice(
+            warehouse[origin].length - numOfMoves,
+            numOfMoves
+        );
+        warehouse[destination] = warehouse[destination].concat(boxesToMove);
     }
 });
 
@@ -71,4 +74,4 @@ warehouse.map((boxes) => {
     topBoxes += boxes[boxes.length - 1];
 });
 
-console.log(`part 1: ${topBoxes}`);
+console.log(`part 2: ${topBoxes}`);
