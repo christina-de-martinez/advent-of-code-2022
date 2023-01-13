@@ -26,8 +26,8 @@ function checkPreviousCharacters(prevCharacters, currentCharacters = null) {
 
 function day6(input) {
     let index = null;
-    for (let i = 4; i < input.length; i++) {
-        let seenCharacters = input.slice(i - 4, i);
+    for (let i = 14; i < input.length; i++) {
+        let seenCharacters = input.slice(i - 14, i);
         const charactersAreUnique = checkPreviousCharacters(seenCharacters);
 
         if (charactersAreUnique) return i;
