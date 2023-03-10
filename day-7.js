@@ -1,48 +1,38 @@
 /*
-first section would be parsing "terminal" output
-
-second section would be tree traversal
 depth-first search
 find the deepest leaf and its siblings, add the sums up, if it's less than 100k add it to an array or something. all parent folders also contain at least that number
 
-depth first search using recursion maybe?
+depth first search using recursion
 find deepest leaf and collect it, then go back one and go to its next child, etc., until out of children
 */
-
+// const realInput = require("./day-7-input.js");
+const pre = document.getElementsByTagName("pre");
+const realInput = pre[0].innerHTML;
+console.log(realInput);
 const exampleTerminal = `$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst\n$ cd e\n$ ls\n584 i\n$ cd ..\n$ cd ..\n$ cd d\n$ ls\n4060174 j\n8033020 d.log\n5626152 d.ext\n7214296 k`;
-
-// something starting with a $ is a command.
-// something starting with dir is a directory name
-// something starting with a number is the file size, then file name, respectively. file names can have extensions (e.g. .ext) or not.
-// ls means list and should have the dir name and then the files. this ends when you see a $ again
-// dir means a directory exists there
-/*
-cd / means to move to root
-cd x moves in one level (to that directory)
-cd .. moves out one level
-
-dir x is a directory
-123 a is a file size and file name
-(after ls, look at upcoming ones and gather them into that node? do this until we find another $?)
-*/
 
 function makeFileStructure(input) {
     input = input.split("\n");
 
     class TreeNode {
-        constructor(value, parent = null) {
+        constructor(value = 0, name = "", parent = null) {
             this.value = value;
+            this.name = name;
             this.descendants = [];
             this.parent = parent;
         }
     }
 
-    const root = new TreeNode("root");
+    const root = new TreeNode(0, "root");
     let currentNode = root;
 
     for (const line of input) {
-        if (line.startsWith("dir")) {
+        console.log("line", line);
+        if (line === "") {
+            console.log("skipping");
+        } else if (line.startsWith("dir")) {
             const newDirectoryNode = new TreeNode(
+                0,
                 line.split(" ")[1],
                 currentNode
             );
@@ -50,6 +40,7 @@ function makeFileStructure(input) {
         } else if (!line.startsWith("$")) {
             const newFileNode = new TreeNode(
                 parseInt(line.split(" ")[0]),
+                line.split(" ")[1],
                 currentNode
             );
             currentNode.descendants.push(newFileNode);
@@ -60,8 +51,8 @@ function makeFileStructure(input) {
         ) {
             let directoryName = line.split("$ cd");
             directoryName = directoryName[1].trim();
-            const nodeToAddTo = currentNode.descendants.find((node) => {
-                return node.value === directoryName;
+            const nodeToAddTo = currentNode?.descendants?.find((node) => {
+                return node.name === directoryName;
             });
             currentNode = nodeToAddTo;
         } else if (line.startsWith("$ cd ..")) {
@@ -72,4 +63,39 @@ function makeFileStructure(input) {
     return root;
 }
 
-makeFileStructure(exampleTerminal);
+function getSizeOfNode(node, smallFolders) {
+    if (node.descendants.length < 1) {
+        if (node.parent.value === 0) {
+            node.parent.value = node.parent.descendants.reduce(
+                (acc, sibling) => {
+                    return (acc += parseInt(sibling.value));
+                },
+                0
+            );
+            if (node.parent.value < 100000) {
+                smallFolders.push(node.parent);
+            }
+        }
+    }
+    return node.descendants
+        .map((child) => getSizeOfNode(child, smallFolders))
+        .reduce((a, b) => a + b, 0);
+}
+
+function findBigDirectories() {
+    const tree = makeFileStructure(realInput);
+
+    let smallFolders = [];
+
+    val = getSizeOfNode(tree, smallFolders);
+
+    console.log("small folders", smallFolders);
+
+    const size = smallFolders.reduce((acc, curr) => {
+        console.log("adding", curr.value);
+        return acc + curr.value;
+    }, 0);
+    console.log(`part 1: ${size}`); // should be 95437
+}
+
+findBigDirectories();
